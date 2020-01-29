@@ -23,7 +23,7 @@
     </select>
 
     <!--新增用户-->
-    <insert id="insert">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO
             `user` (<include refid="INSERT_COLUMN"></include>)
         VALUES
