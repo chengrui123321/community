@@ -1,8 +1,5 @@
 package com.newcoder.community.domain;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
-
 import java.util.List;
 
 /**

@@ -1,4 +1,4 @@
-package com.newcoder.community.controller.controller;
+package com.newcoder.community.controller;
 
 import com.github.pagehelper.PageHelper;
 import com.newcoder.community.domain.DiscussPost;

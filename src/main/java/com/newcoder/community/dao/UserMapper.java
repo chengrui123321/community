@@ -8,4 +8,10 @@ public interface UserMapper {
 
     User get(Integer id);
 
+    void insert(User user);
+
+    User getByName(String username);
+
+    User getByEmail(String email);
+
 }
