@@ -50,4 +50,34 @@
             email = #{email}
     </select>
 
+    <!--修改用户激活状态-->
+    <update id="updateStatus">
+        UPDATE
+            `user`
+        SET
+            status = #{status}
+        WHERE
+            id = #{userId}
+    </update>
+
+    <!--修改头像-->
+    <update id="updateHeaderUrl">
+        UPDATE
+            `user`
+        SET
+            header_url = #{headerUrl}
+        WHERE
+            id = #{userId}
+    </update>
+
+    <!--修改密码-->
+    <update id="updatePassword">
+        UPDATE
+            `user`
+        SET
+            password = #{password}
+        WHERE
+            id = #{userId}
+    </update>
+
 </mapper>
