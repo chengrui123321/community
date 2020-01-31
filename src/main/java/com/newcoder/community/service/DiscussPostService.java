@@ -11,4 +11,8 @@ public interface DiscussPostService {
 
     PageBean<DiscussPost> list(Integer userId);
 
+    DiscussPost getDiscussPostById(Integer id);
+
+    void addDiscussPost(DiscussPost discussPost);
+
 }

@@ -8,6 +8,10 @@
         id, user_id, title, content, `type`, status, create_time, comment_count, score
     </sql>
 
+    <sql id="INSERT_COLUMN">
+        user_id, title, content, `type`, status, create_time, comment_count, score
+    </sql>
+
     <!--分页查询-->
     <select id="list" resultType="com.newcoder.community.domain.DiscussPost">
         SELECT
@@ -22,5 +26,31 @@
         </where>
         ORDER BY `type` DESC, create_time DESC
     </select>
+
+    <!--根据id查询DiscussPost-->
+    <select id="get" resultType="com.newcoder.community.domain.DiscussPost">
+        SELECT
+            <include refid="BASE_COLUMN"></include>
+        FROM
+            discuss_post
+        WHERE
+            id = #{id}
+    </select>
+
+    <!--修改评论数量-->
+    <update id="updateCommentCount">
+        UPDATE
+            discuss_post
+        SET
+            comment_count = #{count}
+        WHERE
+            id = #{id}
+    </update>
+
+    <!--发布新帖-->
+    <insert id="insert">
+        INSERT INTO discuss_post (<include refid="INSERT_COLUMN"></include>)
+        VALUES (#{userId} , #{title} , #{content} , #{type} , #{status} , #{createTime} , #{commentCount} , #{score}  )
+    </insert>
 
 </mapper>

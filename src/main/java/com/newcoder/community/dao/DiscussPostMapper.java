@@ -14,4 +14,9 @@ public interface DiscussPostMapper {
 
     List<DiscussPost> list(@Param("userId") Integer userId);
 
+    DiscussPost get(Integer id);
+
+    void updateCommentCount(@Param("id") Integer id, @Param("count") Integer count);
+
+    void insert(DiscussPost discussPost);
 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.newcoder.community.dao.CommentMapper">
+
+    <sql id="BASE_COLUMN">
+        id, user_id, entity_type, entity_id, target_id, content, create_time, status
+    </sql>
+
+    <sql id="INSERT_COLUMN">
+        user_id, entity_type, entity_id, target_id, content, status, create_time
+    </sql>
+
+    <!--分页查询-->
+    <select id="getCommentList" resultType="com.newcoder.community.domain.Comment">
+        SELECT
+            <include refid="BASE_COLUMN"></include>
+        FROM
+            comment
+        WHERE
+            status = 0
+        AND
+            entity_type = #{entityType}
+        AND
+            entity_id = #{entityId}
+        ORDER BY create_time DESC
+    </select>
+
+    <!--查询评论数量-->
+    <select id="selectCount" resultType="int">
+        SELECT
+            COUNT(id)
+        FROM
+            comment
+        WHERE
+            status = 0
+        AND
+            entity_type = #{entityType}
+        AND
+            entity_id = #{entityId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO
+            comment(<include refid="INSERT_COLUMN"></include>)
+        VALUES (#{userId} , #{entityType} , #{entityId} , #{targetId} , #{content} , #{status} , #{createTime} )
+    </insert>
+</mapper>
