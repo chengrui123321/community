@@ -28,4 +28,6 @@ public interface UserService {
 
     Map<String, Object> updatePassword(String oldPwd, String newPwd, Integer userId);
 
+    User findByUsername(String username);
+
 }

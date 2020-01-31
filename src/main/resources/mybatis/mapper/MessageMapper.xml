@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.newcoder.community.dao.MessageMapper">
+
+    <sql id="BASE_COLUMN">
+        id, from_id, to_id, conversation_id, content, status, create_time
+    </sql>
+
+    <sql id="INSERT_COLUMN">
+        from_id, to_id, conversation_id, content, status, create_time
+    </sql>
+
+    <!--查询用户的会话列表-->
+    <select id="findConversions" resultType="com.newcoder.community.domain.Message">
+        SELECT
+            <include refid="BASE_COLUMN"></include>
+        FROM
+            message
+        WHERE
+            id
+        IN (
+            SELECT
+                MAX(id)
+            FROM
+                message
+            WHERE
+                status != 2
+            AND
+                from_id != 1
+            AND
+                (from_id = #{userId} OR to_id = #{userId})
+            GROUP BY conversation_id
+        )
+        ORDER BY id DESC
+    </select>
+
+    <!--查询会话的私信列表-->
+    <select id="findLetters" resultType="com.newcoder.community.domain.Message">
+        SELECT
+            <include refid="BASE_COLUMN"></include>
+        FROM
+            message
+        WHERE
+            status != 2
+        AND
+            from_id != 1
+        AND
+            conversation_id = #{conversationId}
+        ORDER BY id DESC
+    </select>
+
+    <!--查询会话私信数量-->
+    <select id="findLetterCount" resultType="int">
+        SELECT
+            COUNT(id)
+        FROM
+            message
+        WHERE
+            status != 2
+        AND
+            from_id != 1
+        AND
+            conversation_id = #{conversationId}
+    </select>
+
+    <!--查询未读私信数量-->
+    <select id="findUnReadLetterCount" resultType="int">
+        SELECT
+            COUNT(id)
+        FROM
+            message
+        WHERE
+            status = 0
+        AND
+            from_id != 1
+        and
+            to_id = #{userId}
+        <if test="conversionId != null and conversionId != ''">
+            AND
+                conversation_id = #{conversionId}
+        </if>
+    </select>
+
+    <!--批量更新消息状态-->
+    <update id="updateMessageStatus">
+        UPDATE
+            message
+        SET
+            status = #{status}
+        WHERE
+            id IN
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--添加信息-->
+    <insert id="insert">
+        INSERT INTO
+            message(<include refid="INSERT_COLUMN"></include>)
+        VALUES (#{fromId} , #{toId} , #{conversationId} , #{content} , #{status} , #{createTime} )
+    </insert>
+
+</mapper>
