@@ -5,7 +5,9 @@ import com.newcoder.community.domain.DiscussPost;
 import com.newcoder.community.domain.PageBean;
 import com.newcoder.community.domain.User;
 import com.newcoder.community.service.DiscussPostService;
+import com.newcoder.community.service.LikeService;
 import com.newcoder.community.service.UserService;
+import com.newcoder.community.util.CommunityConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,6 +31,9 @@ public class HomeController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    LikeService likeService;
+
     @GetMapping("/index")
     public String index(Integer current, Model model) {
         //设置分页参数
@@ -47,6 +52,10 @@ public class HomeController {
                 Map<String, Object> map = new HashMap<>();
                 map.put("user", user);
                 map.put("discussPost", discussPost);
+                // 获取讨论贴点赞数量
+                Integer likeCount = likeService.getEntityLikeCount(CommunityConstant.ENTITY_TYPE_POST, discussPost.getId());
+                // 保存点赞数量
+                map.put("likeCount", likeCount);
                 list.add(map);
             });
         }

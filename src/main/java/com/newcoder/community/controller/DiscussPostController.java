@@ -7,10 +7,12 @@ import com.newcoder.community.domain.PageBean;
 import com.newcoder.community.domain.User;
 import com.newcoder.community.service.CommentService;
 import com.newcoder.community.service.DiscussPostService;
+import com.newcoder.community.service.LikeService;
 import com.newcoder.community.service.UserService;
 import com.newcoder.community.util.CommunityConstant;
 import com.newcoder.community.util.CommunityUtil;
 import com.newcoder.community.util.HostHolder;
+import com.newcoder.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,6 +39,9 @@ public class DiscussPostController {
 
     @Autowired
     HostHolder hostHolder;
+
+    @Autowired
+    LikeService likeService;
 
     /**
      * 获取讨论贴详细信息
@@ -67,6 +72,13 @@ public class DiscussPostController {
         page.setCurrent(current);
         page.setPath("/discuss/detail/" + id);
         model.addAttribute("page", page);
+        // 获取讨论贴点赞数量
+        Integer likeCount = likeService.getEntityLikeCount(CommunityConstant.ENTITY_TYPE_POST, id);
+        // 保存点赞数量
+        model.addAttribute("likeCount", likeCount);
+        // 获取点赞状态
+        Integer likeStatus = user == null ? 0 : likeService.getEntityLikeStatus(user.getId(), CommunityConstant.ENTITY_TYPE_POST, id);
+        model.addAttribute("likeStatus", likeStatus);
         // 获取贴子回复列表集合
         List<Comment> commentList = page.getContent();
         // 评论列表
@@ -79,6 +91,12 @@ public class DiscussPostController {
                 commentVO.put("comment", comment);
                 // 保存评论的用户
                 commentVO.put("user", userService.get(comment.getUserId()));
+                // 获取讨论贴点赞数量
+                likeCount = likeService.getEntityLikeCount(CommunityConstant.ENTITY_TYPE_COMMENT, comment.getId());
+                commentVO.put("likeCount", likeCount);
+                // 获取点赞状态
+                likeStatus = user == null ? 0 : likeService.getEntityLikeStatus(user.getId(), CommunityConstant.ENTITY_TYPE_COMMENT, comment.getId());
+                commentVO.put("likeStatus", likeStatus);
                 // 获取该评论所有的回复数
                 List<Comment> replyCommentList = commentService.findReplyCommentList(CommunityConstant.ENTITY_TYPE_COMMENT, comment.getId());
                 List<Map<String, Object>> replyVOList = new ArrayList<>();
@@ -90,6 +108,12 @@ public class DiscussPostController {
                         replyVO.put("reply", reply);
                         // 保存用户信息
                         replyVO.put("user", userService.get(reply.getUserId()));
+                        // 获取讨论贴点赞数量
+                        likeCount = likeService.getEntityLikeCount(CommunityConstant.ENTITY_TYPE_COMMENT, reply.getId());
+                        replyVO.put("likeCount", likeCount);
+                        // 获取点赞状态
+                        likeStatus = user == null ? 0 : likeService.getEntityLikeStatus(user.getId(), CommunityConstant.ENTITY_TYPE_COMMENT, reply.getId());
+                        replyVO.put("likeStatus", likeStatus);
                         // 回复目标
                         User target = reply.getTargetId() == 0 ? null : userService.get(reply.getTargetId());
                         replyVO.put("target", target);
@@ -112,7 +136,7 @@ public class DiscussPostController {
 
     /**
      * 发布新帖
-     * @param discussPost
+     * @param
      * @return
      */
     @PostMapping("/add")
