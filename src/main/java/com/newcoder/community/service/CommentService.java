@@ -18,4 +18,6 @@ public interface CommentService {
 
     void addComment(Comment comment);
 
+    Comment findCommentById(Integer id);
+
 }

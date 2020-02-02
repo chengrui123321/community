@@ -85,6 +85,7 @@ public class LikeServiceImpl implements LikeService {
     public Integer getUserLikeCount(Integer userId) {
         // 获取用户赞key
         String userLikeKey = RedisKeyUtil.getUserLikeKey(userId);
-        return (Integer)redisTemplate.boundValueOps(userLikeKey).get() == null ? 0 : (Integer)redisTemplate.boundValueOps(userLikeKey).get();
+        Integer count = (Integer)redisTemplate.boundValueOps(userLikeKey).get();
+        return count == null ? 0 : count.intValue();
     }
 }

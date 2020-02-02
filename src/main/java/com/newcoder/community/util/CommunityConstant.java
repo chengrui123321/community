@@ -45,4 +45,24 @@ public class CommunityConstant {
      */
     public static final Integer ENTITY_TYPE_USER = 3;
 
+    /**
+     * 评论主题
+     */
+    public static final String TOPIC_COMMENT = "comment";
+
+    /**
+     * 点赞主题
+     */
+    public static final String TOPIC_LIKE = "like";
+
+    /**
+     * 关注主题
+     */
+    public static final String TOPIC_FOLLOW = "follow";
+
+    /**
+     * 系统用户
+     */
+    public static final Integer SYSTEM_USER_ID = 1;
+
 }

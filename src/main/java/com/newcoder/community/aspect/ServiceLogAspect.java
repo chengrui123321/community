@@ -29,6 +29,9 @@ public class ServiceLogAspect {
     public void before(JoinPoint joinPoint) {
         // 获取请求对象
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            return;
+        }
         HttpServletRequest request = attributes.getRequest();
         // 获取ip
         String ip = request.getRemoteHost();

@@ -29,4 +29,12 @@ public interface MessageMapper {
 
     // 添加信息
     void insert(Message message);
+
+    Message findLatestNotice(@Param("topic") String topic, @Param("userId") Integer userId);
+
+    Integer findNoticeCount(@Param("topic") String topic, @Param("userId") Integer userId);
+
+    Integer findUnreadNoticeCount(@Param("topic") String topic, @Param("userId") Integer userId);
+
+    List<Message> findNotices(@Param("userId") Integer userId, @Param("topic") String topic);
 }

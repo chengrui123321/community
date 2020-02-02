@@ -41,9 +41,20 @@
             entity_id = #{entityId}
     </select>
 
+    <!--插入评论-->
     <insert id="insert">
         INSERT INTO
             comment(<include refid="INSERT_COLUMN"></include>)
         VALUES (#{userId} , #{entityType} , #{entityId} , #{targetId} , #{content} , #{status} , #{createTime} )
     </insert>
+
+    <!--根据id查询评论-->
+    <select id="findCommentById" resultType="com.newcoder.community.domain.Comment">
+        SELECT
+            <include refid="BASE_COLUMN"></include>
+        FROM
+            comment
+        WHERE
+            id = #{id}
+    </select>
 </mapper>

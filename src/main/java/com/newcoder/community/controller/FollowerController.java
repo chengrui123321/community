@@ -1,7 +1,9 @@
 package com.newcoder.community.controller;
 
+import com.newcoder.community.domain.Event;
 import com.newcoder.community.domain.PageBean;
 import com.newcoder.community.domain.User;
+import com.newcoder.community.kafka.EventProducer;
 import com.newcoder.community.service.FollowerService;
 import com.newcoder.community.service.UserService;
 import com.newcoder.community.util.CommunityConstant;
@@ -34,6 +36,9 @@ public class FollowerController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    EventProducer eventProducer;
+
     /**
      * 关注
      * @param entityType
@@ -47,6 +52,14 @@ public class FollowerController {
         User user = hostHolder.get();
         // 关注
         followerService.follow(user.getId(), entityType, entityId);
+        // 发送消息
+        Event event = new Event()
+                .setTopic(CommunityConstant.TOPIC_FOLLOW)
+                .setUserId(user.getId())
+                .setEntityId(entityId)
+                .setEntityType(entityType)
+                .setEntityUserId(entityId);
+        eventProducer.fireEvent(event);
         return CommunityUtil.getJSONString(0, "已关注");
     }
 

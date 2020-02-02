@@ -23,4 +23,12 @@ public interface MessageService {
 
     void insert(Message message);
 
+    Message findLatestNotice(String topic, Integer userId);
+
+    Integer findNoticeCount(String topic, Integer userId);
+
+    Integer findUnreadNoticeCount(String topic, Integer userId);
+
+    PageBean<Message> findNotices(Integer userId, String topic);
+
 }

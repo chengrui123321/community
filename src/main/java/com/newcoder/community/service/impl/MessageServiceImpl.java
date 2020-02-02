@@ -104,4 +104,51 @@ public class MessageServiceImpl implements MessageService {
         // 添加
         messageMapper.insert(message);
     }
+
+    /**
+     * 查询某个主题最新的通知
+     * @param topic
+     * @param userId
+     * @return
+     */
+    public Message findLatestNotice(String topic, Integer userId) {
+        return messageMapper.findLatestNotice(topic, userId);
+    }
+
+    /**
+     * 查询某个主题的通知个数
+     * @param topic
+     * @param userId
+     * @return
+     */
+    public Integer findNoticeCount(String topic, Integer userId) {
+        return messageMapper.findNoticeCount(topic, userId);
+    }
+
+    /**
+     * 查询未读通知个数
+     * @param topic
+     * @param userId
+     * @return
+     */
+    public Integer findUnreadNoticeCount(String topic, Integer userId) {
+        return messageMapper.findUnreadNoticeCount(topic, userId);
+    }
+
+    /**
+     * 查询某个主题通知列表
+     * @param userId
+     * @param topic
+     * @return
+     */
+    public PageBean<Message> findNotices(Integer userId, String topic) {
+        // 查询
+        List<Message> notices = messageMapper.findNotices(userId, topic);
+        // 构建分页信息
+        PageInfo<Message> pageInfo = new PageInfo<>(notices);
+        PageBean<Message> page = new PageBean<>();
+        page.setRows(Long.valueOf(pageInfo.getTotal()).intValue());
+        page.setContent(notices);
+        return page;
+    }
 }

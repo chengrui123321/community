@@ -93,4 +93,13 @@ public class CommentServiceImpl implements CommentService {
             discussPostMapper.updateCommentCount(comment.getEntityId(), count);
         }
     }
+
+    /**
+     * 根据id查询回复
+     * @param id
+     * @return
+     */
+    public Comment findCommentById(Integer id) {
+        return commentMapper.findCommentById(id);
+    }
 }

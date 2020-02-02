@@ -103,4 +103,79 @@
         VALUES (#{fromId} , #{toId} , #{conversationId} , #{content} , #{status} , #{createTime} )
     </insert>
 
+    <!--查询某个主题最新通知-->
+    <select id="findLatestNotice" resultType="com.newcoder.community.domain.Message">
+        SELECT
+            <include refid="BASE_COLUMN"></include>
+        FROM
+            message
+        WHERE
+            id IN
+        (
+            SELECT
+                MAX(id)
+            FROM
+                message
+            WHERE
+                status != 2
+            AND
+                from_id = 1
+            AND
+                to_id = #{userId}
+            AND
+                conversation_id = #{topic}
+        )
+    </select>
+
+    <!--查询主题的通知个数-->
+    <select id="findNoticeCount" resultType="int">
+        SELECT
+            COUNT(id)
+        FROM
+            message
+        WHERE
+            status != 2
+        AND
+            from_id = 1
+        AND
+            to_id = #{userId}
+        AND
+            conversation_id = #{topic}
+    </select>
+
+    <!--查询主题的未读通知个数-->
+    <select id="findUnreadNoticeCount" resultType="int">
+        SELECT
+            COUNT(id)
+        FROM
+            message
+        WHERE
+            status = 0
+        AND
+            from_id = 1
+        AND
+            to_id = #{userId}
+        <if test="topic != null and topic != ''">
+            AND
+                conversation_id = #{topic}
+        </if>
+    </select>
+
+    <!--查询某个主题通知的消息列表-->
+    <select id="findNotices" resultType="com.newcoder.community.domain.Message">
+        SELECT
+            <include refid="BASE_COLUMN"></include>
+        FROM
+            message
+        WHERE
+            status != 2
+        AND
+            from_id = 1
+        AND
+            to_id = #{userId}
+        AND
+            conversation_id = #{topic}
+        ORDER BY create_time DESC
+    </select>
+
 </mapper>

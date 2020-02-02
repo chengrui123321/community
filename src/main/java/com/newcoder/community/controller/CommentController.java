@@ -1,8 +1,13 @@
 package com.newcoder.community.controller;
 
 import com.newcoder.community.domain.Comment;
+import com.newcoder.community.domain.DiscussPost;
+import com.newcoder.community.domain.Event;
 import com.newcoder.community.domain.User;
+import com.newcoder.community.kafka.EventProducer;
 import com.newcoder.community.service.CommentService;
+import com.newcoder.community.service.DiscussPostService;
+import com.newcoder.community.util.CommunityConstant;
 import com.newcoder.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,6 +30,12 @@ public class CommentController {
     @Autowired
     HostHolder hostHolder;
 
+    @Autowired
+    EventProducer eventProducer;
+
+    @Autowired
+    DiscussPostService discussPostService;
+
     /**
      * 添加评论
      * @param postId
@@ -44,6 +55,26 @@ public class CommentController {
         comment.setCreateTime(new Date());
         // 添加
         commentService.addComment(comment);
+
+        // 创建事件对象
+        Event event = new Event()
+                .setUserId(user.getId())
+                .setEntityId(comment.getEntityId())
+                .setEntityType(comment.getEntityType())
+                .setTopic(CommunityConstant.TOPIC_COMMENT)
+                .setData("postId", postId);
+        // 判断评论的是帖子还是回复
+        if (comment.getEntityType() == CommunityConstant.ENTITY_TYPE_POST) {
+            // 查询帖子
+            DiscussPost post = discussPostService.getDiscussPostById(comment.getEntityId());
+            event.setEntityUserId(post.getUserId());
+        } else if (comment.getEntityType() == CommunityConstant.ENTITY_TYPE_COMMENT) {
+            // 查询回复
+            Comment c = commentService.findCommentById(comment.getEntityId());
+            event.setEntityUserId(c.getUserId());
+        }
+        // 发送消息
+        eventProducer.fireEvent(event);
         return "redirect:/discuss/detail/" + postId;
     }
 
