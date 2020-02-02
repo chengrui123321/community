@@ -5,8 +5,10 @@ import org.apache.ibatis.annotations.*;
 
 /**
  * 登录凭证
+ * 已废弃
  */
 @Mapper
+@Deprecated
 public interface LoginTicketMapper {
 
     @Insert("INSERT INTO login_ticket (user_id, ticket, status, expired) VALUES (#{userId} , #{ticket} , #{status} , #{expired} )")

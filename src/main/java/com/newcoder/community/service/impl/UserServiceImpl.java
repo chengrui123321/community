@@ -8,8 +8,11 @@ import com.newcoder.community.service.UserService;
 import com.newcoder.community.util.CommunityConstant;
 import com.newcoder.community.util.CommunityUtil;
 import com.newcoder.community.util.MailClient;
+import com.newcoder.community.util.RedisKeyUtil;
+import io.lettuce.core.protocol.ProtocolKeyword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -20,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 用户业务
@@ -45,13 +49,21 @@ public class UserServiceImpl implements UserService {
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
     /**
      * 根据用户id查询用户
      * @param id
      * @return
      */
     public User get(Integer id) {
-        return userMapper.get(id);
+        User user = getCache(id);
+        if (user == null) {
+            user = initCache(id);
+        }
+        return user;
+//        return userMapper.get(id);
     }
 
     /**
@@ -122,7 +134,11 @@ public class UserServiceImpl implements UserService {
      */
     public Integer activation(Integer userId, String code) {
         // 根据id查询用户
-        User user = userMapper.get(userId);
+        User user = getCache(userId);
+        if (user == null) {
+            user = initCache(userId);
+        }
+//        User user = userMapper.get(userId);
         if (user.getStatus() == 1) {
             return CommunityConstant.ACTIVATION_REPEAT;
         }
@@ -176,7 +192,11 @@ public class UserServiceImpl implements UserService {
                 .setStatus(0)
                 .setTicket(CommunityUtil.genUUID())
                 .setExpired(new Date(System.currentTimeMillis() + expire * 1000));
-        loginTicketMapper.insert(ticket);
+//        loginTicketMapper.insert(ticket);
+        // 获取保存保存票据的key
+        String ticketKey = RedisKeyUtil.getTicketKey(ticket.getTicket());
+        // 保存在redis中
+        redisTemplate.boundValueOps(ticketKey).set(ticket);
         // 保存票据
         map.put("ticket", ticket.getTicket());
         return map;
@@ -187,7 +207,10 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     public LoginTicket getLoginTicketByTicket(String ticket) {
-        return loginTicketMapper.getByTicket(ticket);
+        // 获取ticket key
+        String ticketKey = RedisKeyUtil.getTicketKey(ticket);
+        return (LoginTicket) redisTemplate.boundValueOps(ticketKey).get();
+//        return loginTicketMapper.getByTicket(ticket);
     }
 
     /**
@@ -196,7 +219,14 @@ public class UserServiceImpl implements UserService {
      * @param status
      */
     public void updateTicketStatus(String ticket, Integer status) {
-        loginTicketMapper.updateStatus(ticket, status);
+        // 获取票据的key
+        String ticketKey = RedisKeyUtil.getTicketKey(ticket);
+        // 获取票据
+        LoginTicket loginTicket = (LoginTicket) redisTemplate.boundValueOps(ticketKey).get();
+        loginTicket.setStatus(status);
+        // 重新保存
+        redisTemplate.boundValueOps(ticketKey).set(loginTicket);
+//        loginTicketMapper.updateStatus(ticket, status);
     }
 
     /**
@@ -206,6 +236,8 @@ public class UserServiceImpl implements UserService {
      */
     public void updateHeader(Integer userId, String headerUrl) {
         userMapper.updateHeaderUrl(userId, headerUrl);
+        // 删除缓存
+        clearCache(userId);
     }
 
     /**
@@ -225,7 +257,10 @@ public class UserServiceImpl implements UserService {
             return map;
         }
         // 查询当前用户
-        User user = userMapper.get(userId);
+        User user = getCache(userId);
+        if (user == null) {
+            user = initCache(userId);
+        }
         // 加密旧密码
         oldPwd = CommunityUtil.md5(oldPwd + user.getSalt());
         // 加密新密码
@@ -240,6 +275,8 @@ public class UserServiceImpl implements UserService {
         }
         // 修改密码
         userMapper.updatePassword(newPwd, userId);
+        // 删除缓存
+        clearCache(userId);
         return map;
     }
 
@@ -250,5 +287,42 @@ public class UserServiceImpl implements UserService {
      */
     public User findByUsername(String username) {
         return userMapper.getByName(username);
+    }
+
+    /**
+     * 从缓存中获取USER
+     * @param userId
+     * @return
+     */
+    public User getCache(Integer userId) {
+        // 生成需要获取的redis key
+        String userKey = RedisKeyUtil.getUserKey(userId);
+        return (User) redisTemplate.boundValueOps(userKey).get();
+    }
+
+    /**
+     * 将user查询出来，保存在redis中
+     * @param userId
+     * @return
+     */
+    public User initCache(Integer userId) {
+        // 从数据库中查询user
+        User user = userMapper.get(userId);
+        // 生成user key
+        String userKey = RedisKeyUtil.getUserKey(userId);
+        // 将查询的user保存在redis中
+        redisTemplate.boundValueOps(userKey).set(user, 60 * 60, TimeUnit.SECONDS);
+        return user;
+    }
+
+    /**
+     * 删除缓存
+     * @param userId
+     */
+    public void clearCache(Integer userId) {
+        // 生成需要获取的redis key
+        String userKey = RedisKeyUtil.getUserKey(userId);
+        // 删除
+        redisTemplate.delete(userKey);
     }
 }
