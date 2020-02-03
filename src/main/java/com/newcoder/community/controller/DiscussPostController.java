@@ -1,10 +1,8 @@
 package com.newcoder.community.controller;
 
 import com.github.pagehelper.PageHelper;
-import com.newcoder.community.domain.Comment;
-import com.newcoder.community.domain.DiscussPost;
-import com.newcoder.community.domain.PageBean;
-import com.newcoder.community.domain.User;
+import com.newcoder.community.domain.*;
+import com.newcoder.community.kafka.EventProducer;
 import com.newcoder.community.service.CommentService;
 import com.newcoder.community.service.DiscussPostService;
 import com.newcoder.community.service.LikeService;
@@ -42,6 +40,9 @@ public class DiscussPostController {
 
     @Autowired
     LikeService likeService;
+
+    @Autowired
+    EventProducer eventProducer;
 
     /**
      * 获取讨论贴详细信息
@@ -155,6 +156,15 @@ public class DiscussPostController {
                         .setCreateTime(new Date());
         // 添加
         discussPostService.addDiscussPost(discussPost);
+
+        // 触发发帖事件
+        Event event = new Event()
+                .setUserId(user.getId())
+                .setEntityId(discussPost.getId())
+                .setEntityType(CommunityConstant.ENTITY_TYPE_POST)
+                .setTopic(CommunityConstant.TOPIC_PUBLISH);
+        // 发送事件
+        eventProducer.fireEvent(event);
         return CommunityUtil.getJSONString(0, "发布成功!");
     }
 }

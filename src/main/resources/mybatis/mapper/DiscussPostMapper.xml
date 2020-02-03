@@ -48,7 +48,7 @@
     </update>
 
     <!--发布新帖-->
-    <insert id="insert">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO discuss_post (<include refid="INSERT_COLUMN"></include>)
         VALUES (#{userId} , #{title} , #{content} , #{type} , #{status} , #{createTime} , #{commentCount} , #{score}  )
     </insert>

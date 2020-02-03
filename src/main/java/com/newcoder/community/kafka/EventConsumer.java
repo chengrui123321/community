@@ -2,8 +2,11 @@ package com.newcoder.community.kafka;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.newcoder.community.domain.DiscussPost;
 import com.newcoder.community.domain.Event;
 import com.newcoder.community.domain.Message;
+import com.newcoder.community.service.DiscussPostService;
+import com.newcoder.community.service.ElasticsearchService;
 import com.newcoder.community.service.MessageService;
 import com.newcoder.community.util.CommunityConstant;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +28,12 @@ public class EventConsumer {
 
     @Autowired
     MessageService messageService;
+
+    @Autowired
+    DiscussPostService discussPostService;
+
+    @Autowired
+    ElasticsearchService elasticsearchService;
 
     /**
      * 监听主题消息，将消息插入数据库中
@@ -65,6 +74,29 @@ public class EventConsumer {
 
         // 保存消息
         messageService.insert(message);
+    }
+
+    /**
+     * 监听发布帖子事件处理
+     * @param record
+     */
+    @KafkaListener(topics = CommunityConstant.TOPIC_PUBLISH)
+    public void publish(ConsumerRecord record) {
+        if (record == null || record.value() == null) {
+            log.error("消息为空!");
+            return;
+        }
+        // 将消息转为事件
+        Event event = JSON.parseObject(record.value().toString(), Event.class);
+        if (event == null) {
+            log.error("消息格式有误!");
+            return;
+        }
+
+        // 查询帖子
+        DiscussPost post = discussPostService.getDiscussPostById(event.getEntityId());
+        // 保存在es中
+        elasticsearchService.save(post);
     }
 
 }

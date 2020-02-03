@@ -61,6 +61,11 @@ public class CommunityConstant {
     public static final String TOPIC_FOLLOW = "follow";
 
     /**
+     * 发帖主题
+     */
+    public static final String TOPIC_PUBLISH = "publish";
+
+    /**
      * 系统用户
      */
     public static final Integer SYSTEM_USER_ID = 1;
