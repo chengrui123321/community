@@ -71,6 +71,11 @@ public class CommunityConstant {
     public static final String TOPIC_DELETE = "delete";
 
     /**
+     * 分享主题
+     */
+    public static final String TOPIC_SHARE = "share";
+
+    /**
      * 系统用户
      */
     public static final Integer SYSTEM_USER_ID = 1;

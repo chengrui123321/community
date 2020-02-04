@@ -1,6 +1,8 @@
 package com.newcoder.community.controller;
 
 import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.common.comm.ResponseMessage;
+import com.aliyun.oss.model.PutObjectResult;
 import com.newcoder.community.domain.User;
 import com.newcoder.community.service.FollowerService;
 import com.newcoder.community.service.LikeService;
