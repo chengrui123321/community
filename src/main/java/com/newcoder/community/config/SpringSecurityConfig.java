@@ -70,7 +70,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .hasAnyAuthority(CommunityConstant.AUTHORITY_MODERATOR)
                 .antMatchers(
                         "/discuss/delete",
-                        "/data/**"
+                        "/data/**",
+                        "/actuator/**"
                 )
                 .hasAnyAuthority(CommunityConstant.AUTHORITY_ADMIN)
                 .anyRequest().permitAll()
