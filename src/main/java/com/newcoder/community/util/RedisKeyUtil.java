@@ -46,6 +46,19 @@ public class RedisKeyUtil {
     private static final String PREFIX_USER = "user";
 
     /**
+     * 帖子前缀
+     */
+    public static final String PREFIX_POST = "post";
+
+    /**
+     * 获取帖子key
+     * @return
+     */
+    public static String getPostKey() {
+        return PREFIX_POST + SPLIT + "post";
+    }
+
+    /**
      * 获取用户key
      * @param userId
      * @return

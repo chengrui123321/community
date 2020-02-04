@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -202,6 +203,8 @@ public class LoginController {
     @GetMapping("/logout")
     public String logout(@CookieValue("ticket") String ticket) {
         userService.updateTicketStatus(ticket, 1);
+        // 清除Spring Security 认证信息
+        SecurityContextHolder.clearContext();
         return "redirect:/login";
     }
 

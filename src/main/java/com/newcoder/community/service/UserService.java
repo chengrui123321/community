@@ -2,7 +2,9 @@ package com.newcoder.community.service;
 
 import com.newcoder.community.domain.LoginTicket;
 import com.newcoder.community.domain.User;
+import org.springframework.security.core.GrantedAuthority;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,5 +31,7 @@ public interface UserService {
     Map<String, Object> updatePassword(String oldPwd, String newPwd, Integer userId);
 
     User findByUsername(String username);
+
+    List<GrantedAuthority> getAuthorities(Integer userId);
 
 }

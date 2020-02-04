@@ -13,16 +13,14 @@ import io.lettuce.core.protocol.ProtocolKeyword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -324,5 +322,30 @@ public class UserServiceImpl implements UserService {
         String userKey = RedisKeyUtil.getUserKey(userId);
         // 删除
         redisTemplate.delete(userKey);
+    }
+
+    /**
+     * 获取某个用户具有的权限
+     * @param userId
+     * @return
+     */
+    public List<GrantedAuthority> getAuthorities(Integer userId) {
+        List<GrantedAuthority> list = new ArrayList<>();
+        // 查询用户
+        User user = this.get(userId);
+        list.add(new GrantedAuthority() {
+            @Override
+            public String getAuthority() {
+                switch (user.getType()) {
+                    case 1:
+                        return CommunityConstant.AUTHORITY_ADMIN;
+                    case 2:
+                        return CommunityConstant.AUTHORITY_MODERATOR;
+                    default:
+                        return CommunityConstant.AUTHORITY_USER;
+                }
+            }
+        });
+        return list;
     }
 }

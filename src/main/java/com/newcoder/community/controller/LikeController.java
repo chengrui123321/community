@@ -7,7 +7,9 @@ import com.newcoder.community.service.LikeService;
 import com.newcoder.community.util.CommunityConstant;
 import com.newcoder.community.util.CommunityUtil;
 import com.newcoder.community.util.HostHolder;
+import com.newcoder.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,6 +30,9 @@ public class LikeController {
 
     @Autowired
     EventProducer eventProducer;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     /**
      * 点赞/取消点赞
@@ -61,6 +66,11 @@ public class LikeController {
                     .setEntityUserId(entityUserId)
                     .setData("postId", postId);
             eventProducer.fireEvent(event);
+        }
+        // 如果点赞是帖子，则刷新帖子分数
+        if (entityType == CommunityConstant.ENTITY_TYPE_POST) {
+            String postKey = RedisKeyUtil.getPostKey();
+            redisTemplate.boundSetOps(postKey).add(postId);
         }
         return CommunityUtil.getJSONString(0, null, map);
     }

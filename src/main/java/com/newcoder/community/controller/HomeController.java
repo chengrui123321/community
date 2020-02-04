@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,14 +35,20 @@ public class HomeController {
     @Autowired
     LikeService likeService;
 
+    /**
+     * 访问首页
+     * @param current
+     * @param model
+     * @return
+     */
     @GetMapping("/index")
-    public String index(Integer current, Model model) {
+    public String index(Integer current, @RequestParam(value = "orderMode", defaultValue = "0") int orderMode, Model model) {
         //设置分页参数
         if (current == null) {
             current = 1;
         }
         PageHelper.startPage(current, 10);
-        PageBean<DiscussPost> page = discussPostService.list(0);
+        PageBean<DiscussPost> page = discussPostService.list(0, orderMode);
         List<DiscussPost> discussPosts = page.getContent();
         //保存讨论贴和用户集合
         List<Map<String, Object>> list = new ArrayList<>();
@@ -64,8 +71,26 @@ public class HomeController {
         page.setCurrent(current);
         page.setPath("/index");
         model.addAttribute("page", page);
+        model.addAttribute("orderMode", orderMode);
         return "index";
     }
 
+    /**
+     * 统一异常处理请求
+     * @return
+     */
+    @GetMapping("/error")
+    public String error() {
+        return "error/500";
+    }
+
+    /**
+     * 没有权限
+     * @return
+     */
+    @GetMapping("/denied")
+    public String deny() {
+        return "error/404";
+    }
 
 }

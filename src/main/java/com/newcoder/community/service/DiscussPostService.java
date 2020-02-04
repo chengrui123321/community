@@ -9,10 +9,16 @@ import com.newcoder.community.domain.PageBean;
  */
 public interface DiscussPostService {
 
-    PageBean<DiscussPost> list(Integer userId);
+    PageBean<DiscussPost> list(Integer userId, int orderMode);
 
     DiscussPost getDiscussPostById(Integer id);
 
     void addDiscussPost(DiscussPost discussPost);
+
+    void updateType(Integer postId, Integer type);
+
+    void updateStatus(Integer postId, Integer status);
+
+    void updateScore(Integer postId, Double score);
 
 }

@@ -9,7 +9,9 @@ import com.newcoder.community.service.CommentService;
 import com.newcoder.community.service.DiscussPostService;
 import com.newcoder.community.util.CommunityConstant;
 import com.newcoder.community.util.HostHolder;
+import com.newcoder.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +37,9 @@ public class CommentController {
 
     @Autowired
     DiscussPostService discussPostService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     /**
      * 添加评论
@@ -84,6 +89,9 @@ public class CommentController {
                     .setEntityId(postId);
             // 发布事件
             eventProducer.fireEvent(event);
+            // 刷新帖子分数
+            String postKey = RedisKeyUtil.getPostKey();
+            redisTemplate.boundSetOps(postKey).add(postId);
         }
         return "redirect:/discuss/detail/" + postId;
     }

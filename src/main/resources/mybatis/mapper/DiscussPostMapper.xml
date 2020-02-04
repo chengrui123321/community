@@ -24,7 +24,12 @@
                 and user_id = #{userId}
             </if>
         </where>
-        ORDER BY `type` DESC, create_time DESC
+        <if test="orderMode == 0">
+            ORDER BY `type` DESC, create_time DESC
+        </if>
+        <if test="orderMode == 1">
+            ORDER BY `type` DESC, score DESC, create_time DESC
+        </if>
     </select>
 
     <!--根据id查询DiscussPost-->
@@ -53,4 +58,33 @@
         VALUES (#{userId} , #{title} , #{content} , #{type} , #{status} , #{createTime} , #{commentCount} , #{score}  )
     </insert>
 
+    <!--修改帖子类型-->
+    <update id="updateType">
+        UPDATE
+            discuss_post
+        SET
+            type = #{type}
+        WHERE
+            id = #{postId}
+    </update>
+
+    <!--修改帖子状态-->
+    <update id="updateStatus">
+        UPDATE
+            discuss_post
+        SET
+            status = #{status}
+        WHERE
+            id = #{postId}
+    </update>
+
+    <!--修改帖子分数-->
+    <update id="updateScore">
+        UPDATE
+            discuss_post
+        SET
+            score = #{score}
+        WHERE
+            id = #{postId}
+    </update>
 </mapper>

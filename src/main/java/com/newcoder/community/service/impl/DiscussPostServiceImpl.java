@@ -6,6 +6,7 @@ import com.newcoder.community.domain.DiscussPost;
 import com.newcoder.community.domain.PageBean;
 import com.newcoder.community.service.DiscussPostService;
 import com.newcoder.community.util.SensitiveFilter;
+import com.sun.corba.se.impl.resolver.ORBDefaultInitRefResolverImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
@@ -31,9 +32,9 @@ public class DiscussPostServiceImpl implements DiscussPostService {
      * @param userId
      * @return
      */
-    public PageBean<DiscussPost> list(Integer userId) {
+    public PageBean<DiscussPost> list(Integer userId, int orderMode) {
         //查询讨论贴
-        List<DiscussPost> discussPosts = discussPostMapper.list(userId);
+        List<DiscussPost> discussPosts = discussPostMapper.list(userId, orderMode);
         PageInfo<DiscussPost> pageInfo = new PageInfo<>(discussPosts);
         //封装分页查询结果
         PageBean<DiscussPost> pageBean = new PageBean<>();
@@ -67,5 +68,25 @@ public class DiscussPostServiceImpl implements DiscussPostService {
         discussPost.setContent(sensitiveFilter.filter(discussPost.getContent()));
         // 添加
         discussPostMapper.insert(discussPost);
+    }
+
+    /**
+     *
+     * @param postId
+     * @param type
+     */
+    @Override
+    public void updateType(Integer postId, Integer type) {
+        discussPostMapper.updateType(postId, type);
+    }
+
+    @Override
+    public void updateStatus(Integer postId, Integer status) {
+        discussPostMapper.updateStatus(postId, status);
+    }
+
+    @Override
+    public void updateScore(Integer postId, Double score) {
+        discussPostMapper.updateScore(postId, score);
     }
 }
