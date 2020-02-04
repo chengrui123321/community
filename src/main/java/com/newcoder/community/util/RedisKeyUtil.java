@@ -51,6 +51,56 @@ public class RedisKeyUtil {
     public static final String PREFIX_POST = "post";
 
     /**
+     * 独立访问IP
+     */
+    public static final String PREFIX_UV = "uv";
+
+    /**
+     * 日活用户
+     */
+    public static final String PREFIX_DAU = "dau";
+
+    /**
+     * 获取单日DAU key
+     * @param date
+     * @return
+     */
+    public static String getDAUKey(String date) {
+        return PREFIX_DAU + SPLIT + date;
+    }
+
+    /**
+     * 获取区间DAU key
+     * @param start
+     * @param end
+     * @return
+     */
+    public static String getDAUKey(String start, String end) {
+        return PREFIX_DAU + SPLIT + start + SPLIT + end;
+    }
+
+    /**
+     * 获取单日UV key
+     * @param date
+     * @return
+     */
+    public static String getUVKey(String date) {
+        return PREFIX_UV + SPLIT + date;
+    }
+
+    /**
+     * 获取区间UV key
+     * @param start
+     * @param end
+     * @return
+     */
+    public static String getUVKey(String start, String end) {
+        return PREFIX_UV + SPLIT + start + SPLIT + end;
+    }
+
+
+
+    /**
      * 获取帖子key
      * @return
      */

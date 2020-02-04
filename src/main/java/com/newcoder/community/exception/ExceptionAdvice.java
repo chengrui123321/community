@@ -29,6 +29,7 @@ public class ExceptionAdvice {
         for (StackTraceElement element : ex.getStackTrace()) {
             log.error(element.toString());
         }
+        ex.printStackTrace();
         // 判断是否是异步请求
         String xRequestedWith = request.getHeader("x-requested-with");
         if ("XMLHttpRequest".equals(xRequestedWith)) {

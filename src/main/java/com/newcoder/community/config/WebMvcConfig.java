@@ -1,5 +1,6 @@
 package com.newcoder.community.config;
 
+import com.newcoder.community.interceptor.DataInterceptor;
 import com.newcoder.community.interceptor.LoginTicketInterceptor;
 import com.newcoder.community.interceptor.MessageInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     MessageInterceptor messageInterceptor;
 
+    @Autowired
+    DataInterceptor dataInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginTicketInterceptor)
@@ -26,6 +30,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
 
         registry.addInterceptor(messageInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
+
+        registry.addInterceptor(dataInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
     }
